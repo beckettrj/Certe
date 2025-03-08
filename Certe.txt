@@ -1,0 +1,17 @@
+If you're on the Basic Managed WordPress Hosting plan, it doesn't come with a traditional cPanel or direct FTP access in the same way that other hosting plans like Web Hosting with cPanel do. However, you can still manage your files through the built-in File Manager in your GoDaddy WordPress Dashboard, or use SFTP for a more direct file access.
+
+Would you like instructions on how to use SFTP for your site?
+
+mx2.147.myftpupload.com
+mx2.147.myftpupload.com:22
+client_c3236a163_55620
+EEt0CGFlvQQHhT
+
+https://drive.google.com/file/d/1muT0M45kesHtD0MdXn6aTvD5Wc1zzpbC/view?usp=drive_link
+https://drive.google.com/file/d/1muT0M45kesHtD0MdXn6aTvD5Wc1zzpbC/view?usp=drive_link
+
+
+
+client_b0c4d7194f_55620
+uid: 39810pwpadmin
+$P$B2eKAM96yyyFE908Qhs5bo0850c/ZC.

@@ -1,0 +1,12 @@
+# Python Package Requirements
+flask==3.0.2
+pyxlsb==1.0.10
+pandas==2.2.0
+openpyxl==3.1.2
+Werkzeug==3.0.1
+numpy>=1.24.0
+
+# Required Input Files
+# Place these files in the 'Certe' folder:
+# 1. 02-10-2025-nba-season-team-feed.xlsx (Default Excel file)
+# 2. 1744060.webp (Background image for the grid)
