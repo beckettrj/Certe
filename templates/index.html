@@ -16,6 +16,15 @@
             background-attachment: fixed;
         }
 
+        .logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 150px;
+            height: auto;
+            z-index: 1000;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -23,6 +32,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 60px; /* Added space for logo */
         }
 
         .input-group {
@@ -139,6 +149,7 @@
     </style>
 </head>
 <body>
+    <img src="/Certe/CerteAI_LOGOv1.png" alt="Certe AI Logo" class="logo">
     <div class="container">
         <h1>XLSB File Viewer</h1>
         <form id="uploadForm">
