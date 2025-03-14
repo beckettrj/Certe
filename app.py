@@ -7,7 +7,9 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-DEFAULT_FILE = os.path.join('Certe', '02-10-2025-nba-season-team-feed.xlsx')
+DEFAULT_FILE = os.path.join('Certe', 'Efficient Meta Count Certe Beta 1.0.xlsb')
+DEFAULT_START_CELL = 'G1'
+DEFAULT_END_CELL = 'K5'
 
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -56,7 +58,10 @@ def read_excel_data(filepath, start_cell, end_cell):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', 
+                         default_file=os.path.basename(DEFAULT_FILE),
+                         default_start_cell=DEFAULT_START_CELL,
+                         default_end_cell=DEFAULT_END_CELL)
 
 @app.route('/get_data', methods=['POST'])
 def get_data():

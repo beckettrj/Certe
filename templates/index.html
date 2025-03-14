@@ -155,25 +155,25 @@
         <form id="uploadForm">
             <div class="checkbox-container">
                 <input type="checkbox" id="useDefault" checked>
-                <label for="useDefault">Use default file from Certe folder (02-10-2025-nba-season-team-feed.xlsx)</label>
+                <label for="useDefault">Use default file from Certe folder ({{ default_file }})</label>
             </div>
             <div id="fileSection" class="file-section disabled">
                 <div class="input-field">
                     <label for="file">XLSB File:</label>
                     <div class="file-input-container">
                         <input type="file" id="file" accept=".xlsb,.xlsx">
-                        <div class="expected-file">Expected file: 02-10-2025-nba-season-team-feed.xlsx</div>
+                        <div class="expected-file">Expected file: {{ default_file }}</div>
                     </div>
                 </div>
             </div>
             <div class="input-group">
                 <div class="input-field">
                     <label for="startCell">Start Cell (e.g., A1):</label>
-                    <input type="text" id="startCell" pattern="[A-Za-z]+[0-9]+" required>
+                    <input type="text" id="startCell" pattern="[A-Za-z]+[0-9]+" required value="{{ default_start_cell }}">
                 </div>
                 <div class="input-field">
                     <label for="endCell">End Cell (e.g., G10):</label>
-                    <input type="text" id="endCell" pattern="[A-Za-z]+[0-9]+" required>
+                    <input type="text" id="endCell" pattern="[A-Za-z]+[0-9]+" required value="{{ default_end_cell }}">
                 </div>
             </div>
             <button type="submit">Load Data</button>
@@ -186,14 +186,14 @@
         const useDefaultCheckbox = document.getElementById('useDefault');
         const fileSection = document.getElementById('fileSection');
         const fileInput = document.getElementById('file');
+        const uploadForm = document.getElementById('uploadForm');
 
         useDefaultCheckbox.addEventListener('change', (e) => {
             fileSection.classList.toggle('disabled', e.target.checked);
             fileInput.required = !e.target.checked;
         });
 
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        async function loadData() {
             const formData = new FormData();
             const startCell = document.getElementById('startCell').value;
             const endCell = document.getElementById('endCell').value;
@@ -203,13 +203,8 @@
             formData.append('end_cell', endCell);
             formData.append('use_default', useDefault);
 
-            if (!useDefault) {
-                const file = document.getElementById('file').files[0];
-                if (!file) {
-                    document.getElementById('error').textContent = 'Please select a file';
-                    return;
-                }
-                formData.append('file', file);
+            if (!useDefault && fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
             }
 
             try {
@@ -241,7 +236,15 @@
             } catch (error) {
                 document.getElementById('error').textContent = 'An error occurred while processing the file.';
             }
+        }
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await loadData();
         });
+
+        // Load data automatically when the page loads
+        window.addEventListener('load', loadData);
     </script>
 </body>
 </html> 
