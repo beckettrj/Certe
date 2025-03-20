@@ -1,0 +1,80 @@
+.game-arena {
+    color: #ffdd4a;  /* Brighter orange color */
+    font-style: italic;
+    min-width: 150px;
+    text-align: right;
+    font-size: 0.85em;
+}
+
+.arena {
+    font-style: italic;
+    color: #ffdd4a;  /* Brighter orange color */
+    font-size: 0.8em;
+    margin-left: 15px;
+    display: inline-block;
+}
+
+.todays-games h2 {
+    color: #ffdd4a;  /* Brighter orange color */
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.9);
+    color: #ffdd4a;
+    border-radius: 4px;
+    /* ... rest of tooltip styles ... */
+}
+
+<form id="uploadForm">
+    <div class="checkbox-container">
+        <input type="checkbox" id="useDefault" checked>
+        <label for="useDefault">Use default file from Certe folder</label>
+    </div>
+    <div id="fileSection" class="file-section disabled">
+        <div class="input-group">
+            <div class="input-field">
+                <label for="file">XLSB File:</label>
+                <div class="file-input-container">
+                    <input type="file" id="file" accept=".xlsb,.xlsx">
+                    <div class="expected-file">Expected file: Certe Beta 1.2.xlsb</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="input-group">
+        <div class="input-field">
+            <label for="startCell">Start Cell:</label>
+            <input type="text" id="startCell" pattern="[A-Za-z]+[0-9]+" required value="{{ default_start_cell }}">
+        </div>
+        <div class="input-field">
+            <label for="endCell">End Cell:</label>
+            <input type="text" id="endCell" pattern="[A-Za-z]+[0-9]+" required value="{{ default_end_cell }}">
+        </div>
+        <button type="submit">Load Data</button>
+    </div>
+</form>
+
+document.getElementById('error').textContent = '';
+const table = document.createElement('table');
+
+// Add header row
+const headerRow = document.createElement('tr');
+const headers = ['Starts in: d:hh:mm:ss', 'Teams', 'Arena'];
+headers.forEach(headerText => {
+    const th = document.createElement('th');
+    th.textContent = headerText;
+    headerRow.appendChild(th);
+});
+table.appendChild(headerRow);
+
+// Add data rows
+result.data.forEach(row => {
+// ... existing code ...
+} 
