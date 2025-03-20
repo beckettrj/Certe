@@ -1,0 +1,16 @@
+# Python Package Requirements
+Flask>=2.3.0
+pyxlsb>=1.0.10
+pandas>=2.1.0
+openpyxl>=3.1.2
+Werkzeug>=2.3.0
+numpy>=1.24.0
+pytz>=2023.3
+gunicorn>=21.2.0
+
+# Required Input Files
+# Place these files in the 'Certe' folder:
+# 1. NBA_Schedule_2024-25.xlsx (NBA Schedule file)
+# 2. 1744060.webp (Background image for the grid)
+# 3. Certe_bg.webp (Background image)
+# 4. CerteAI_LOGOv1.png (Logo image)
