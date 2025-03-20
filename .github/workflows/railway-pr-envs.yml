@@ -1,0 +1,36 @@
+# NOTE
+# if you have 2fa on your account, the pr close part of the action will hang (due to 2fa not being supported non-interactively)
+
+name: Manage PR environments (Railway)
+
+on:
+  pull_request:
+    types: [opened, closed]
+
+env:
+    RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }} # get this in account settings (make sure this is NOT a project token), and scope it to your account (not a workspace)
+    SERVICE_ID: "b257e8f7-d35f-4c35-825e-776a88d1fb39" # service ID to inject database variable into
+    DUPLICATE_FROM_ID: "production" # railway environment to duplicate from
+    LINK_PROJECT_ID: "db258728-631c-46e0-91b1-00d2697c2ca8" # project ID
+    # TEAM_ID: "" if you are linking to a project in team, uncomment this
+
+jobs:
+    pr_opened:
+        if: github.event.action == 'opened'
+        runs-on: ubuntu-latest
+        container: ghcr.io/railwayapp/cli:latest
+        steps:
+        - name: Link to project
+          run: railway link --project ${{ env.LINK_PROJECT_ID }} --environment ${{ env.DUPLICATE_FROM_ID }} # --team ${{ env.TEAM_ID }} # uncomment this if you are linking to a team project  
+        - name: Create Railway Environment for PR
+          run: railway environment new pr-${{ github.event.pull_request.number }} --copy ${{ env.DUPLICATE_FROM_ID }}
+
+    pr_closed:
+        if: github.event.action == 'closed'
+        runs-on: ubuntu-latest
+        container: ghcr.io/railwayapp/cli:latest
+        steps:
+        - name: Link to project
+          run: railway link --project ${{ env.LINK_PROJECT_ID }} --environment ${{ env.DUPLICATE_FROM_ID }} # --team ${{ env.TEAM_ID }} # uncomment this if you are linking to a team project       
+        - name: Delete Railway Environment for PR
+          run: railway environment delete pr-${{ github.event.pull_request.number }} 
