@@ -1,6 +1,6 @@
-# Certe NBA Schedule Display
+# Certe Web Application
 
-A Flask web application that displays NBA game schedules with live countdowns.
+A Flask-based web application for displaying NBA game schedules and data from Excel files.
 
 ## Features
 - Live game countdowns
