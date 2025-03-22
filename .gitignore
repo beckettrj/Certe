@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+# Python
+=======
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+<<<<<<< HEAD
+=======
 env/
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
 build/
 develop-eggs/
 dist/
@@ -14,6 +21,35 @@ lib64/
 parts/
 sdist/
 var/
+<<<<<<< HEAD
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Local development
+.env
+.env.local
+uploads/
+
+# Excel temp files
+~$*
+*.tmp 
+=======
 *.egg-info/
 .installed.cfg
 *.egg
@@ -28,4 +64,8 @@ ENV/
 uploads/
 *.xlsb
 *.xlsx 
+<<<<<<< HEAD
 *.pdf
+=======
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
+>>>>>>> d68ec810b6486223e9e0ad6d02351d5dfe6e9148

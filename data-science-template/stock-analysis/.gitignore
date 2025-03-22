@@ -1,0 +1,22 @@
+# Virtual Environment
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Data and cache
+data/
+.cache/
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+*.swp
+
+# Pip freeze output
+requirements_full.txt

@@ -1,15 +1,25 @@
+<<<<<<< HEAD
+from flask import Flask, render_template, request, jsonify, send_from_directory
+from pyxlsb import open_workbook
+import pandas as pd
+import os
+=======
 import os
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from pyxlsb import open_workbook
 import pandas as pd
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 import pytz
 import logging
 
+<<<<<<< HEAD
+=======
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -108,7 +118,10 @@ def read_excel_data(filepath, start_cell, end_cell):
 
 @app.route('/')
 def index():
+<<<<<<< HEAD
+=======
     logging.info("Index route hit")
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
     return render_template('index.html', 
                          default_file=os.path.basename(DEFAULT_FILE),
                          default_start_cell=DEFAULT_START_CELL,
@@ -116,7 +129,10 @@ def index():
 
 @app.route('/get_data', methods=['POST'])
 def get_data():
+<<<<<<< HEAD
+=======
     logging.info("Get data route hit")
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
     start_cell = request.form.get('start_cell', 'A1')
     end_cell = request.form.get('end_cell', 'A1')
     use_default = request.form.get('use_default', 'false') == 'true'
@@ -150,17 +166,24 @@ def get_data():
                 os.remove(filepath)
     
     except Exception as e:
+<<<<<<< HEAD
+=======
         logging.error(f"Error in get_data: {str(e)}")
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
         return jsonify({'error': str(e)})
 
 @app.route('/certe_fresh/<path:filename>')
 def serve_certe_file(filename):
+<<<<<<< HEAD
+=======
     logging.info(f"Serving file: {filename}")
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
     return send_from_directory('certe_fresh', filename)
 
 @app.route('/nba_games')
 def nba_games():
     try:
+<<<<<<< HEAD
         today = datetime.today().date()
         now = datetime.now()
         next_day = today + timedelta(days=1)
@@ -189,12 +212,226 @@ def nba_games():
             })
 
         return jsonify(games_list)
+=======
+<<<<<<< HEAD
+        # Get current time in ET
+        current_time = datetime.now(pytz.timezone('America/New_York'))
+        
+        # Calculate time difference
+        time_diff = target_datetime - current_time
+        
+        # Extract days, hours, minutes, seconds
+=======
+        current_time = datetime.now(pytz.timezone('America/New_York'))
+        time_diff = target_datetime - current_time
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
+        days = time_diff.days
+        seconds = time_diff.seconds
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = seconds % 60
+<<<<<<< HEAD
+        
+        # Format as Days: HH:MM:SS
+        return f"{days}:{hours:02d}:{minutes:02d}:{seconds:02d}"
+    except Exception as e:
+        print(f"Error formatting countdown: {str(e)}")
+        return "0:00:00:00"
 
+def parse_game_time(time_str):
+    # Convert time like '7:30p' to proper datetime.time object
+    try:
+        # Remove any spaces and ensure 'p' or 'a' is followed by 'm'
+        time_str = time_str.strip()
+        # Handle special case where 'p' or 'a' is at the end
+        if time_str.endswith('p') or time_str.endswith('a'):
+            time_str = time_str[:-1] + ('pm' if time_str.endswith('p') else 'am')
+        return datetime.strptime(time_str, '%I:%M%p').strftime('%H:%M')
+    except Exception as e:
+        print(f"Error parsing time {time_str}: {str(e)}")
+        return None
+
+def get_next_game():
+    try:
+        schedule_file = os.path.join('certe_fresh', 'NBA_Schedule_2024-25.xlsx')
+        if not os.path.exists(schedule_file):
+            return None
+            
+        try:
+            df = pd.read_excel(schedule_file, engine='openpyxl')
+        except Exception as e:
+            return None
+        
+        # Map the actual column names
+        df = df.rename(columns={
+            'Game Date': 'Date',
+            'Start (ET)': 'Time',
+            'Visitor/Neutral': 'Visitor',
+            'Home/Neutral': 'Home'
+        })
+        
+        # Convert date and time columns to datetime
+        try:
+            df['Date'] = pd.to_datetime(df['Date'])
+            df['Time'] = df['Time'].apply(parse_game_time)
+            df['datetime'] = pd.to_datetime(df['Date'].dt.strftime('%Y-%m-%d') + ' ' + df['Time'])
+            df['datetime'] = df['datetime'].dt.tz_localize('America/New_York')
+        except Exception as e:
+            return None
+        
+        # Get current time
+        current_time = datetime.now(pytz.timezone('America/New_York'))
+        
+        # Find the next game
+        next_games = df[df['datetime'] > current_time].sort_values('datetime')
+        
+        if next_games.empty:
+            return None
+            
+        next_game = next_games.iloc[0]
+        game_time = next_game['datetime']
+        
+        game_info = {
+            'countdown': format_countdown(game_time),
+            'visitor_team': str(next_game['Visitor']),
+            'home_team': str(next_game['Home']),
+            'arena': str(next_game['Arena']),
+            'game_time': game_time.strftime('%I:%M %p ET'),
+            'game_date': game_time.strftime('%A, %B %d, %Y'),
+            'start_time': game_time.isoformat()
+        }
+        return game_info
+        
+    except Exception as e:
+        return None
+
+@app.route('/get_next_game')
+def next_game_route():
+    game_info = get_next_game()
+    if game_info:
+        return jsonify(game_info)
+    return jsonify({'error': 'No upcoming games found or schedule file missing'})
+
+def format_game_countdown(game_datetime):
+    try:
+        # Ensure game_datetime is timezone aware
+        if game_datetime.tzinfo is None:
+            game_datetime = game_datetime.replace(tzinfo=pytz.timezone('America/New_York'))
+        
+        # Get current time in ET
+        current_time = datetime.now(pytz.timezone('America/New_York'))
+        
+        # Ensure both times are in the same timezone
+        if game_datetime.tzinfo != current_time.tzinfo:
+            game_datetime = game_datetime.astimezone(current_time.tzinfo)
+        
+        # Calculate time difference
+        try:
+            time_diff = game_datetime - current_time
+        except Exception as e:
+            print(f"Error calculating time difference: {str(e)}")
+            return "--:--:--"
+        
+        # If game is in the past, return "Finished"
+        if time_diff.total_seconds() < 0:
+            return "Finished"
+        
+        try:
+            # Calculate hours, minutes, and seconds
+            total_seconds = int(time_diff.total_seconds())
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            
+            # Format as HH:MM:SS
+            return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+        except Exception as e:
+            print(f"Error formatting countdown values: {str(e)}")
+            return "--:--:--"
+            
+    except Exception as e:
+        print(f"Error in format_game_countdown: {str(e)}")
+        return "--:--:--"
+
+=======
+        return f"{days}:{hours:02d}:{minutes:02d}:{seconds:02d}"
+    except Exception as e:
+        logging.error(f"Error formatting countdown: {str(e)}")
+        return "0:00:00:00"
+
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
+@app.route('/todays_games')
+def todays_games_route():
+    logging.info("Today's games route hit")
+    try:
+        schedule_file = os.path.join('uploads', 'NBA_Schedule_2024-25.xlsx')
+        if not os.path.exists(schedule_file):
+<<<<<<< HEAD
+            logging.error(f"Schedule file not found at: {schedule_file}")
+=======
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
+            return jsonify({'error': f'Schedule file not found at: {schedule_file}'})
+        
+        try:
+            df = pd.read_excel(schedule_file, engine='openpyxl')
+<<<<<<< HEAD
+            # Rename columns to match expected names
+            df = df.rename(columns={
+                'Date': 'date',
+                'Start Time (ET)': 'time',
+                'Away Team': 'away_team',
+                'Home Team': 'home_team'
+            })
+            
+            # Convert date and time to datetime
+            df['datetime'] = pd.to_datetime(df['date'].astype(str) + ' ' + df['time'].astype(str))
+            
+            # Filter for today's games
+            today = datetime.now(pytz.timezone('America/New_York')).date()
+            df['date'] = pd.to_datetime(df['date']).dt.date
+            todays_games = df[df['date'] == today].copy()
+            
+            # Format the output
+            games_list = []
+            for _, game in todays_games.iterrows():
+                game_time = game['datetime'].replace(tzinfo=pytz.timezone('America/New_York'))
+                games_list.append({
+                    'away_team': game['away_team'],
+                    'home_team': game['home_team'],
+                    'start_time': game['time'],
+                    'countdown': format_countdown(game_time),
+                    'tooltip': f"Game starts at {game['time']} ET"
+                })
+            
+            logging.info(f"Found {len(games_list)} games for today")
+            return jsonify({'games': games_list})
+            
+        except Exception as e:
+            logging.error(f"Error processing Excel file: {str(e)}")
+            return jsonify({'error': f'Error processing Excel file: {str(e)}'})
+    
+=======
+        except Exception as e:
+            return jsonify({'error': f'Error reading Excel file: {str(e)}'})
+        
+        # ... rest of your todays_games_route code ...
+>>>>>>> d68ec810b6486223e9e0ad6d02351d5dfe6e9148
+
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
     except Exception as e:
         logging.error(f"Error in nba_games route: {str(e)}")
         return jsonify({'error': f'Error processing NBA games: {str(e)}'})
 
 if __name__ == '__main__':
+<<<<<<< HEAD
+    port = int(os.environ.get('PORT', 5000))  # Use Railway's PORT, default to 5000 locally
+    app.run(host='0.0.0.0', port=port, debug=False)  # host='0.0.0.0' makes it externally visible 
+=======
     port = int(os.environ.get('PORT', 5000))
     logging.info(f"Starting app on port {port}")
     app.run(host='0.0.0.0', port=port)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
+>>>>>>> d68ec810b6486223e9e0ad6d02351d5dfe6e9148
