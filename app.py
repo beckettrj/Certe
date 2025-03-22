@@ -3,6 +3,10 @@ import pandas as pd
 import os
 from datetime import datetime
 import pytz
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__,
             static_url_path='/static',
@@ -11,10 +15,12 @@ app = Flask(__name__,
 
 @app.route('/')
 def index():
+    logging.info("Index route hit")
     return render_template('index.html')
 
 @app.route('/todays_games')
 def todays_games_route():
+    logging.info("Todays games route hit")
     try:
         # Look for NBA schedule file in uploads directory
         schedule_file = None
@@ -24,7 +30,10 @@ def todays_games_route():
                 break
                 
         if not schedule_file:
+            logging.error("Schedule file not found")
             return jsonify({'error': 'NBA Schedule file not found in uploads directory'})
+        
+        logging.debug(f"Found schedule file: {schedule_file}")
         
         # Read the Excel file
         df = pd.read_excel(schedule_file, engine='openpyxl')
@@ -68,9 +77,11 @@ def todays_games_route():
         })
         
     except Exception as e:
+        logging.error(f"Error in todays_games_route: {str(e)}")
         return jsonify({'error': f'Error processing schedule: {str(e)}'})
 
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5000))
+    logging.info(f"Starting app on port {port}")
     app.run(host="0.0.0.0", port=port)
