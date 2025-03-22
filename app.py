@@ -1,12 +1,25 @@
+<<<<<<< HEAD
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from pyxlsb import open_workbook
 import pandas as pd
 import os
+=======
+import os
+from flask import Flask, render_template, request, jsonify, send_from_directory
+from pyxlsb import open_workbook
+import pandas as pd
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 import pytz
 import logging
 
+<<<<<<< HEAD
+=======
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -111,6 +124,10 @@ def read_excel_data(filepath, start_cell, end_cell):
 
 @app.route('/')
 def index():
+<<<<<<< HEAD
+=======
+    logging.info("Index route hit")
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
     return render_template('index.html', 
                          default_file=os.path.basename(DEFAULT_FILE),
                          default_start_cell=DEFAULT_START_CELL,
@@ -118,6 +135,10 @@ def index():
 
 @app.route('/get_data', methods=['POST'])
 def get_data():
+<<<<<<< HEAD
+=======
+    logging.info("Get data route hit")
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
     start_cell = request.form.get('start_cell', 'A1')
     end_cell = request.form.get('end_cell', 'A1')
     use_default = request.form.get('use_default', 'false') == 'true'
@@ -151,14 +172,23 @@ def get_data():
                 os.remove(filepath)
     
     except Exception as e:
+<<<<<<< HEAD
+=======
+        logging.error(f"Error in get_data: {str(e)}")
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
         return jsonify({'error': str(e)})
 
 @app.route('/certe_fresh/<path:filename>')
 def serve_certe_file(filename):
+<<<<<<< HEAD
+=======
+    logging.info(f"Serving file: {filename}")
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
     return send_from_directory('certe_fresh', filename)
 
 def format_countdown(target_datetime):
     try:
+<<<<<<< HEAD
         # Get current time in ET
         current_time = datetime.now(pytz.timezone('America/New_York'))
         
@@ -166,11 +196,16 @@ def format_countdown(target_datetime):
         time_diff = target_datetime - current_time
         
         # Extract days, hours, minutes, seconds
+=======
+        current_time = datetime.now(pytz.timezone('America/New_York'))
+        time_diff = target_datetime - current_time
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
         days = time_diff.days
         seconds = time_diff.seconds
         hours = seconds // 3600
         minutes = (seconds % 3600) // 60
         seconds = seconds % 60
+<<<<<<< HEAD
         
         # Format as Days: HH:MM:SS
         return f"{days}:{hours:02d}:{minutes:02d}:{seconds:02d}"
@@ -293,17 +328,28 @@ def format_game_countdown(game_datetime):
         print(f"Error in format_game_countdown: {str(e)}")
         return "--:--:--"
 
+=======
+        return f"{days}:{hours:02d}:{minutes:02d}:{seconds:02d}"
+    except Exception as e:
+        logging.error(f"Error formatting countdown: {str(e)}")
+        return "0:00:00:00"
+
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
 @app.route('/todays_games')
 def todays_games_route():
     logging.info("Today's games route hit")
     try:
         schedule_file = os.path.join('uploads', 'NBA_Schedule_2024-25.xlsx')
         if not os.path.exists(schedule_file):
+<<<<<<< HEAD
             logging.error(f"Schedule file not found at: {schedule_file}")
+=======
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
             return jsonify({'error': f'Schedule file not found at: {schedule_file}'})
         
         try:
             df = pd.read_excel(schedule_file, engine='openpyxl')
+<<<<<<< HEAD
             # Rename columns to match expected names
             df = df.rename(columns={
                 'Date': 'date',
@@ -339,10 +385,24 @@ def todays_games_route():
             logging.error(f"Error processing Excel file: {str(e)}")
             return jsonify({'error': f'Error processing Excel file: {str(e)}'})
     
+=======
+        except Exception as e:
+            return jsonify({'error': f'Error reading Excel file: {str(e)}'})
+        
+        # ... rest of your todays_games_route code ...
+
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
     except Exception as e:
         logging.error(f"Error in todays_games_route: {str(e)}")
         return jsonify({'error': f'Error processing schedule: {str(e)}'})
 
 if __name__ == '__main__':
+<<<<<<< HEAD
     port = int(os.environ.get('PORT', 5000))  # Use Railway's PORT, default to 5000 locally
     app.run(host='0.0.0.0', port=port, debug=False)  # host='0.0.0.0' makes it externally visible 
+=======
+    port = int(os.environ.get('PORT', 5000))
+    logging.info(f"Starting app on port {port}")
+    app.run(host='0.0.0.0', port=port)
+
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47

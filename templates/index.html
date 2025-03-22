@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .game-arena {
     color: #ffdd4a;  /* Brighter orange color */
     font-style: italic;
@@ -78,3 +79,27 @@ table.appendChild(headerRow);
 result.data.forEach(row => {
 // ... existing code ...
 } 
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="banner">
+        <img src="{{ url_for('static', filename='images/CerteAI_LOGOv1.png') }}" alt="Certe Logo" class="banner-logo">
+    </div>
+
+    <div class="container">
+        <div class="schedule-container">
+            <div id="schedule"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html> 
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47

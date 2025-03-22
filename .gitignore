@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 # Python
+=======
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+<<<<<<< HEAD
+=======
+env/
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
 build/
 develop-eggs/
 dist/
@@ -14,6 +21,7 @@ lib64/
 parts/
 sdist/
 var/
+<<<<<<< HEAD
 wheels/
 *.egg-info/
 .installed.cfg
@@ -41,3 +49,19 @@ uploads/
 # Excel temp files
 ~$*
 *.tmp 
+=======
+*.egg-info/
+.installed.cfg
+*.egg
+.env
+.venv
+venv/
+ENV/
+.idea/
+.vscode/
+*.swp
+.DS_Store
+uploads/
+*.xlsb
+*.xlsx 
+>>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
