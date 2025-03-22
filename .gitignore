@@ -4,11 +4,9 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
 build/
 develop-eggs/
 dist/
-downloads/
 eggs/
 .eggs/
 lib/
@@ -24,6 +22,7 @@ wheels/
 # Virtual Environment
 venv/
 ENV/
+env/
 
 # IDE
 .idea/
@@ -31,12 +30,14 @@ ENV/
 *.swp
 *.swo
 
-# Flask
-instance/
-.webassets-cache
+# Logs
+*.log
 
-# Uploaded files
+# Local development
+.env
+.env.local
 uploads/
 
-# Backup folders
-backup_*/ 
+# Excel temp files
+~$*
+*.tmp 

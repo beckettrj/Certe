@@ -5,6 +5,7 @@ import os
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 import pytz
+import logging
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -294,83 +295,52 @@ def format_game_countdown(game_datetime):
 
 @app.route('/todays_games')
 def todays_games_route():
+    logging.info("Today's games route hit")
     try:
-        schedule_file = os.path.join('certe_fresh', 'NBA_Schedule_2024-25.xlsx')
+        schedule_file = os.path.join('uploads', 'NBA_Schedule_2024-25.xlsx')
         if not os.path.exists(schedule_file):
+            logging.error(f"Schedule file not found at: {schedule_file}")
             return jsonify({'error': f'Schedule file not found at: {schedule_file}'})
         
         try:
             df = pd.read_excel(schedule_file, engine='openpyxl')
-        except Exception as e:
-            return jsonify({'error': f'Error reading Excel file: {str(e)}'})
-        
-        # Map the actual column names
-        df = df.rename(columns={
-            'Game Date': 'Date',
-            'Start (ET)': 'Time',
-            'Visitor/Neutral': 'Visitor',
-            'Home/Neutral': 'Home'
-        })
-        
-        try:
-            # Convert date and time columns to datetime
-            df['Date'] = pd.to_datetime(df['Date'])
-            
-            # Convert time format and handle errors
-            df['Time'] = df['Time'].apply(parse_game_time)
-            
-            # Remove rows where time parsing failed
-            df = df.dropna(subset=['Time'])
-            
-            # Combine date and time
-            df['datetime'] = pd.to_datetime(df['Date'].dt.strftime('%Y-%m-%d') + ' ' + df['Time'])
-            df['datetime'] = df['datetime'].dt.tz_localize('America/New_York')
-            
-            # Get current time in ET
-            current_time = datetime.now(pytz.timezone('America/New_York'))
-            current_date = current_time.date()
-
-            # First try today's games
-            todays_games = df[df['Date'].dt.date == current_date]
-            
-            # If all of today's games are finished or there are no games today,
-            # find the next day that has games
-            if todays_games.empty or all(game['datetime'] < current_time for _, game in todays_games.iterrows()):
-                future_games = df[df['datetime'] > current_time].sort_values('datetime')
-                if future_games.empty:
-                    return jsonify({'error': 'No upcoming games found in schedule'})
-                
-                next_game_date = future_games.iloc[0]['Date'].date()
-                todays_games = df[df['Date'].dt.date == next_game_date]
-                current_date = next_game_date
-
-            # Format the games list
-            games_list = []
-            for _, game in todays_games.iterrows():
-                try:
-                    teams = f"{game['Visitor']} @ {game['Home']}"
-                    game_info = {
-                        'countdown': format_game_countdown(game['datetime']),
-                        'start_time': game['datetime'].isoformat(),
-                        'teams': teams,
-                        'arena': str(game['Arena'])
-                    }
-                    games_list.append(game_info)
-                except Exception as e:
-                    continue
-            
-            # Sort games by datetime
-            games_list.sort(key=lambda x: x['countdown'] if x['countdown'] != 'Finished' else '99:99:99')
-            
-            return jsonify({
-                'date': current_date.strftime('%B %d, %Y'),
-                'games': games_list
+            # Rename columns to match expected names
+            df = df.rename(columns={
+                'Date': 'date',
+                'Start Time (ET)': 'time',
+                'Away Team': 'away_team',
+                'Home Team': 'home_team'
             })
             
+            # Convert date and time to datetime
+            df['datetime'] = pd.to_datetime(df['date'].astype(str) + ' ' + df['time'].astype(str))
+            
+            # Filter for today's games
+            today = datetime.now(pytz.timezone('America/New_York')).date()
+            df['date'] = pd.to_datetime(df['date']).dt.date
+            todays_games = df[df['date'] == today].copy()
+            
+            # Format the output
+            games_list = []
+            for _, game in todays_games.iterrows():
+                game_time = game['datetime'].replace(tzinfo=pytz.timezone('America/New_York'))
+                games_list.append({
+                    'away_team': game['away_team'],
+                    'home_team': game['home_team'],
+                    'start_time': game['time'],
+                    'countdown': format_countdown(game_time),
+                    'tooltip': f"Game starts at {game['time']} ET"
+                })
+            
+            logging.info(f"Found {len(games_list)} games for today")
+            return jsonify({'games': games_list})
+            
         except Exception as e:
-            return jsonify({'error': f'Error processing dates: {str(e)}'})
-        
+            logging.error(f"Error processing Excel file: {str(e)}")
+            return jsonify({'error': f'Error processing Excel file: {str(e)}'})
+    
     except Exception as e:
+        logging.error(f"Error in todays_games_route: {str(e)}")
         return jsonify({'error': f'Error processing schedule: {str(e)}'})
 
 if __name__ == '__main__':
