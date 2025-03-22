@@ -1,5 +1,2 @@
-<<<<<<< HEAD
-web: gunicorn app:app 
-=======
-web: gunicorn app:app
->>>>>>> 9e3c87c78b5238b53a0e92630f991a4cc62e2f47
+web: gunicorn app:app --log-file=- --workers=2 --threads=2 --worker-class=gthread --bind=0.0.0.0:$PORT 
+
