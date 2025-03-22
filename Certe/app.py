@@ -21,7 +21,6 @@ DEFAULT_END_CELL = 'K5'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 def parse_cell_reference(cell_ref):
-    # Convert Excel column letters to numbers (e.g., 'A' -> 0, 'B' -> 1)
     column = ""
     row = ""
     for char in cell_ref:
@@ -44,10 +43,8 @@ def read_excel_data(filepath, start_cell, end_cell):
         with open_workbook(filepath) as wb:
             sheet = wb.get_sheet(1)
             rows = sheet.rows()
-            # Skip to start_row
             for _ in range(start_row):
                 next(rows, None)
-            # Read the required rows
             for row_idx in range(start_row, end_row + 1):
                 try:
                     row = next(rows)
@@ -56,7 +53,7 @@ def read_excel_data(filepath, start_cell, end_cell):
                         cell = row[col_idx] if col_idx < len(row) else None
                         cell_info = {
                             'value': str(cell.v) if cell and cell.v is not None else '',
-                            'type': getattr(cell, 't', ''),  # Cell type (n=number, s=string, etc.)
+                            'type': getattr(cell, 't', ''),
                             'style': {
                                 'bold': bool(getattr(cell, 'bold', False)),
                                 'italic': bool(getattr(cell, 'italic', False)),
@@ -64,8 +61,6 @@ def read_excel_data(filepath, start_cell, end_cell):
                                 'format': getattr(cell, 'number_format', 'general')
                             }
                         }
-                        
-                        # Handle number formatting
                         if cell and cell.v is not None:
                             if isinstance(cell.v, float):
                                 if cell_info['style']['format'] == 'general':
@@ -75,12 +70,11 @@ def read_excel_data(filepath, start_cell, end_cell):
                                     cell_info['style']['format'] = 'percentage'
                             elif isinstance(cell.v, int):
                                 cell_info['value'] = str(cell.v)
-                        
                         row_data.append(cell_info)
                     data.append(row_data)
                 except StopIteration:
                     break
-    else:  # xlsx file
+    else:
         df = pd.read_excel(filepath)
         for row in range(start_row, end_row + 1):
             row_data = []
@@ -164,41 +158,43 @@ def serve_certe_file(filename):
     logging.info(f"Serving file: {filename}")
     return send_from_directory('certe_fresh', filename)
 
-def format_countdown(target_datetime):
+@app.route('/nba_games')
+def nba_games():
     try:
-        current_time = datetime.now(pytz.timezone('America/New_York'))
-        time_diff = target_datetime - current_time
-        days = time_diff.days
-        seconds = time_diff.seconds
-        hours = seconds // 3600
-        minutes = (seconds % 3600) // 60
-        seconds = seconds % 60
-        return f"{days}:{hours:02d}:{minutes:02d}:{seconds:02d}"
-    except Exception as e:
-        logging.error(f"Error formatting countdown: {str(e)}")
-        return "0:00:00:00"
+        today = datetime.today().date()
+        now = datetime.now()
+        next_day = today + timedelta(days=1)
 
-@app.route('/todays_games')
-def todays_games_route():
-    logging.info("Today's games route hit")
-    try:
-        schedule_file = os.path.join('uploads', 'NBA_Schedule_2024-25.xlsx')
+        schedule_file = os.path.join('uploads', 'NBA_Schedule.xlsb')
         if not os.path.exists(schedule_file):
-            return jsonify({'error': f'Schedule file not found at: {schedule_file}'})
-        
-        try:
-            df = pd.read_excel(schedule_file, engine='openpyxl')
-        except Exception as e:
-            return jsonify({'error': f'Error reading Excel file: {str(e)}'})
-        
-        # ... rest of your todays_games_route code ...
+            return jsonify({'error': 'NBA_Schedule.xlsb not found'})
+
+        df = pd.read_excel(schedule_file, engine='pyxlsb')
+        df['GameDate'] = pd.to_datetime(df['GameDate']).dt.date
+        df['GameTime'] = pd.to_datetime(df['GameTime']).dt.time
+
+        todays_games = df[df['GameDate'] == today]
+        games = todays_games if not todays_games.empty else df[df['GameDate'] == next_day]
+
+        games = games.sort_values(by='GameTime')
+
+        games_list = []
+        for _, row in games.iterrows():
+            game_datetime = datetime.combine(row['GameDate'], row['GameTime'])
+            countdown = (game_datetime - now).total_seconds()
+            games_list.append({
+                'teams': f"{row['AwayTeam']} @ {row['HomeTeam']}",
+                'datetime': game_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+                'countdown': max(int(countdown), 0)
+            })
+
+        return jsonify(games_list)
 
     except Exception as e:
-        logging.error(f"Error in todays_games_route: {str(e)}")
-        return jsonify({'error': f'Error processing schedule: {str(e)}'})
+        logging.error(f"Error in nba_games route: {str(e)}")
+        return jsonify({'error': f'Error processing NBA games: {str(e)}'})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     logging.info(f"Starting app on port {port}")
     app.run(host='0.0.0.0', port=port)
-
